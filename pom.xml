@@ -1,68 +1,61 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!--
-    JBoss, Home of Professional Open Source
-    Copyright 2015, Red Hat, Inc. and/or its affiliates, and individual
-    contributors by the @authors tag. See the copyright.txt in the
-    distribution for a full listing of individual contributors.
+public static void main(String[] args) {
+    while (true){
+        def text
+        println 'What would you like to do? Write PULL/PUSH or exit'
+        def action = new Scanner(System.in).nextLine()
+        if (action == "PULL") {
+            println 'Type the name of the repo'
+            def choice = new Scanner(System.in).nextLine()
 
-    Licensed under the Apache License, Version 2.0 (the "License");
-    you may not use this file except in compliance with the License.
-    You may obtain a copy of the License at
-    http://www.apache.org/licenses/LICENSE-2.0
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
--->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-    <parent>
-           <groupId>org.jboss.eap.quickstarts</groupId>
-           <artifactId>quickstart-parent</artifactId>
-           <version>7.1.0.Beta1-SNAPSHOT</version>
-           <relativePath>../pom.xml</relativePath>
-       </parent>
-    <artifactId>helloworld</artifactId>
-    <packaging>war</packaging>
-    <name>${qs.name.prefix} helloworld</name>
-    <description>Helloworld</description>
-    
+            def get = new URL($/http://50.50.50.50:8081/service/siesta/rest/beta/components?repositoryId=${choice}/$).openConnection()
+            def getRC = get.getResponseCode()
+            println(getRC)
+            if (getRC.equals(200)) {
+                text = get.getInputStream().getText()
 
-    <licenses>
-        <license>
-            <name>Apache License, Version 2.0</name>
-            <distribution>repo</distribution>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
-        </license>
-    </licenses>
+            }
+            else if (!getRC.equals(200)){
+                println("Can't connect to this repo, check repo name")
+                continue
+            }
+            def slurper = new groovy.json.JsonSlurper()
+            def result = slurper.parseText(text)
+
+            for (int i = 0; i < result.items.size(); i++) {
+
+                println("GAV parameters: ")
+                print "(Name — "+result.items[i].name + " | "
+                print "Group — " +result.items[i].group + " | "
+                print "Version — " +result.items[i].version + " | "
+                println "id — "+result.items[i].id+ " )"
+
+            }
+            println "Write down which artifact you'd like to download"
+            def artifact = new Scanner(System.in).nextLine()
+            for (int i = 0; i < result.items.size(); i++) {
+                if (artifact == result.items[i].name){
+                    new File("/opt/trash/${artifact}"+"-"+result.items[i].version+".zip").withOutputStream { out ->
+                        new URL("http://50.50.50.50:8081/repository/${choice}/"+result.items[i].group+"/${artifact}/"+result.items[i].version+"/${artifact}"+"-"+result.items[i].version+".zip").eachByte { b ->
+                            out.write(b)
+                        }
+                    }
+                }
+                else {
+                    println("There's no such file")
+                    break
+                }
+            }
 
 
-    <dependencies>
+        }
+        else if(action == "PUSH"){
 
-        <!-- Import the CDI API, we use provided scope as the API is included in WildFly -->
-        <dependency>
-            <groupId>javax.enterprise</groupId>
-            <artifactId>cdi-api</artifactId>
-            <scope>provided</scope>
-        </dependency>
-
-        <!-- Import the Common Annotations API (JSR-250), we use provided scope
-            as the API is included in WildFly -->
-        <dependency>
-            <groupId>org.jboss.spec.javax.annotation</groupId>
-            <artifactId>jboss-annotations-api_1.2_spec</artifactId>
-            <scope>provided</scope>
-        </dependency>
-
-        <!-- Import the Servlet API, we use provided scope as the API is included in WildFly -->
-        <dependency>
-            <groupId>org.jboss.spec.javax.servlet</groupId>
-            <artifactId>jboss-servlet-api_3.1_spec</artifactId>
-            <scope>provided</scope>
-        </dependency>
-
-    </dependencies>
-
-</project>
+        }
+        else if(action == "exit"){
+            break
+        }
+        else {
+            println "Choose the right option"
+            continue
+        }
+    }}
