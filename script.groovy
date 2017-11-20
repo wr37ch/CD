@@ -1,3 +1,7 @@
+
+import groovyx.net.http.HTTPBuilder
+import static groovyx.http.*
+
 public static void main(String[] args) {
     while (true){
         def text
@@ -27,7 +31,7 @@ public static void main(String[] args) {
                 print "(Name — "+result.items[i].name + " | "
                 print "Group — " +result.items[i].group + " | "
                 print "Version — " +result.items[i].version + " | "
-                println "id — "+result.items[i].id+ " )"
+                println "id — " + result.items[i].id+ " )"
 
             }
             println "Write down which artifact you'd like to download"
@@ -51,11 +55,23 @@ public static void main(String[] args) {
         else if(action == "PUSH"){
 
         }
+
+
+
+
         else if(action == "exit"){
+            println("bye-bye!")
             break
         }
+
+
+
+
         else {
             println "Choose the right option"
             continue
         }
+
+
+
     }}
