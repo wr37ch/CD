@@ -1,7 +1,3 @@
-
-import groovyx.net.http.HTTPBuilder
-import static groovyx.http.*
-
 public static void main(String[] args) {
     while (true){
         def text
@@ -31,23 +27,22 @@ public static void main(String[] args) {
                 print "(Name — "+result.items[i].name + " | "
                 print "Group — " +result.items[i].group + " | "
                 print "Version — " +result.items[i].version + " | "
-                println "id — " + result.items[i].id+ " )"
+                println "id — "+result.items[i].id+ " )"
 
             }
             println "Write down which artifact you'd like to download"
             def artifact = new Scanner(System.in).nextLine()
             for (int i = 0; i < result.items.size(); i++) {
-                if (artifact == result.items[i].name){
+                if (result.items[i].name == artifact ){
+                    def a = result.items[i].assets[0].downloadUrl
                     new File("/opt/trash/${artifact}"+"-"+result.items[i].version+".zip").withOutputStream { out ->
-                        new URL("http://50.50.50.50:8081/repository/${choice}/"+result.items[i].group+"/${artifact}/"+result.items[i].version+"/${artifact}"+"-"+result.items[i].version+".zip").eachByte { b ->
+                        new URL(a).eachByte { b ->
                             out.write(b)
                         }
                     }
+                    println("Succesfully downloaded")
                 }
-                else {
-                    println("There's no such file")
-                    break
-                }
+                
             }
 
 
@@ -55,23 +50,11 @@ public static void main(String[] args) {
         else if(action == "PUSH"){
 
         }
-
-
-
-
         else if(action == "exit"){
-            println("bye-bye!")
             break
         }
-
-
-
-
         else {
             println "Choose the right option"
             continue
         }
-
-
-
     }}
