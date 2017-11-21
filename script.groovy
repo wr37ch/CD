@@ -1,4 +1,4 @@
-public static void main(String[] args) {
+static void main(String[] args) {
     while (true){
         def text
         println 'What would you like to do? Write PULL/PUSH or exit'
@@ -55,17 +55,22 @@ public static void main(String[] args) {
             def ArtifID= new Scanner(System.in).nextLine()
             println("Enter Version")
             def Version= new Scanner(System.in).nextLine()
-            URL url = new URL("http://50.50.50.50:8081/repository/maventask-release/$GroupId"+"/sd/${ArtifID}/"+"$Version/${ArtifID}"+"-$Version"+".zip")
+
+
+            URL url = new URL("http://50.50.50.50:8081/repository/maventask-release/$GroupId/$ArtifID/$Version/$ArtifID-$Version"+".zip")
             def authString = "admin:admin123".getBytes().encodeBase64().toString()
             HttpURLConnection httpCon = (HttpURLConnection) url.openConnection();
             httpCon.setDoOutput(true);
             httpCon.setRequestMethod("PUT");
             httpCon.setRequestProperty( "Authorization", "Basic ${authString}" )
-            def body = new File("/home/student/Documents/Vagrant/test.tar.gz").bytes
-            def writer = new DataOutputStream(httpCon.outputStream)
-            writer.write(body)
-            writer.flush()
-            writer.close()
+            def file = new File("/home/student/Documents/shit.zip").bytes
+            def out = new DataOutputStream(httpCon.outputStream)
+            out.write(file);
+            out.flush()
+            out.close();
+            println(httpCon.getResponseCode())
+
+
 
 
         }
@@ -74,6 +79,6 @@ public static void main(String[] args) {
         }
         else {
             println "Choose the right option"
-            continue
+
         }
     }}
