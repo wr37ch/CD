@@ -24,7 +24,7 @@ public static void main(String[] args) {
             for (int i = 0; i < result.items.size(); i++) {
 
                 println("GAV parameters: ")
-                print "(Name — "+result.items[i].name + " | "
+                print "(Name/ArtifactID — "+result.items[i].name + " | "
                 print "Group — " +result.items[i].group + " | "
                 print "Version — " +result.items[i].version + " | "
                 println "id — "+result.items[i].id+ " )"
@@ -42,12 +42,31 @@ public static void main(String[] args) {
                     }
                     println("Succesfully downloaded")
                 }
-                
+
             }
 
 
         }
         else if(action == "PUSH"){
+
+            println("Enter GroupID")
+            def GroupId= new Scanner(System.in).nextLine()
+            println("Enter ArtifID")
+            def ArtifID= new Scanner(System.in).nextLine()
+            println("Enter Version")
+            def Version= new Scanner(System.in).nextLine()
+            URL url = new URL("http://50.50.50.50:8081/repository/maventask-release/$GroupId"+"/sd/${ArtifID}/"+"$Version/${ArtifID}"+"-$Version"+".zip")
+            def authString = "admin:admin123".getBytes().encodeBase64().toString()
+            HttpURLConnection httpCon = (HttpURLConnection) url.openConnection();
+            httpCon.setDoOutput(true);
+            httpCon.setRequestMethod("PUT");
+            httpCon.setRequestProperty( "Authorization", "Basic ${authString}" )
+            def body = new File("/home/student/Documents/Vagrant/test.tar.gz").bytes
+            def writer = new DataOutputStream(httpCon.outputStream)
+            writer.write(body)
+            writer.flush()
+            writer.close()
+
 
         }
         else if(action == "exit"){
